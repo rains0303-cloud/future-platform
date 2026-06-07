@@ -7,7 +7,7 @@ st.write("---")
 st.success("1단계 검증 완료: Streamlit 화면 엔진이 정상 가동 중입니다.")
 
 # ⚠️ [대표님 필수 조치] 아래 따옴표 안을 지우고 sk-proj...로 시작하는 새 키를 넣어주세요.
-MY_SECRET_KEY = "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"
+MY_SECRET_KEY = "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"
 
 st.info("아래 버튼을 누르면 이 컴퓨터에서 OpenAI 본사 서버로 직접 신호를 보냅니다.")
 
