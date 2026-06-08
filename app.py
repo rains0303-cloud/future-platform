@@ -23,7 +23,7 @@ if "workspace_history" not in st.session_state:
 if "selected_view_idx" not in st.session_state:
     st.session_state.selected_view_idx = None
 
-# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입
+# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 + [요청 반영] 우측 상단 GitHub/메뉴 및 불필요한 아이콘 숨기기
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
@@ -50,10 +50,20 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 20px;
     }
+    
+    /* 우측 상단 깃허브 아이콘, 메인 메뉴 및 헤더 전체 삭제 */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* 좌측 사이드바 상단의 배포/개발자 관련 불필요한 장식이나 여백 제거 */
+    [data-testid="stSidebarHeader"] {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (요청 반영: 입력창 가이드에서 EB74 제거)
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (플레이스홀더 및 버튼 내 EB74 문구 제거 완료)
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
@@ -104,7 +114,7 @@ LANG_PACK = {
         "subtitle": "上位 1% 独占的グローバル無人ショート動画生成オーケ스트レーター",
         "sidebar_title": "⚙️ 管制センター (Control)",
         "license_label": "🔑 マスターライセンスキー入力",
-        "license_ph": "ライセンスキーを入力してください...",
+        "license_ph": "라이선스 키를 입력해주세요...",
         "lang_label": "🌐 시스템 UI 言語",
         "m1": "GPT-4o-Mini 同期",
         "m2": "暗号化済みストレージ",
@@ -119,7 +129,7 @@ LANG_PACK = {
         "paywall_btn": "💳 マスターライセンスを即時取得する",
         "status_active": "✅ Enterprise Max 稼働中",
         "status_desc": "すべての制限が解除されました。無制限のグローバルトラフィック掌握モードが有効です。",
-        "err_license": "❌ ライセンスキーが無効です Blender。まずサイドバーでマスターキーを認証してください。"
+        "err_license": "❌ 라이선스キーが無効です。まずサイドバーでマスターキーを認証してください。"
     },
     "简体中文 🇨🇳": {
         "title": "💎 全球 AI 短视频制造工厂 Enterprise",
@@ -199,7 +209,7 @@ with st.sidebar:
     
     st.write("---")
     
-    # [핵심 페이월] 라이선스 인증 인터페이스 (요청 반영: placeholders에서 EB74 제거 완료)
+    # 라이선스 인증 인터페이스 (placeholders에서 EB74 제거 유지)
     license_input = st.text_input(L["license_label"], placeholder=L["license_ph"], type="password")
     
     # 라이선스 키 조건 검증 (마스터 키: EB74)
@@ -232,7 +242,7 @@ st.title(L["title"])
 st.subheader(L["subtitle"])
 st.write("---")
 
-# 하이엔드 테마 지표 대시보드 (요청 반영: 우측 상단 메트릭 내 이모지/아이콘 제거)
+# 하이엔드 테마 지표 대시보드 (메트릭 내부 이모지/아이콘 제거 유지)
 mc1, mc2, mc3, mc4 = st.columns(4)
 with mc1: st.metric(label=L["m1"], value="Stable", delta="99.98% Latency")
 with mc2: st.metric(label=L["m2"], value=f"{len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
