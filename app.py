@@ -23,7 +23,7 @@ if "workspace_history" not in st.session_state:
 if "selected_view_idx" not in st.session_state:
     st.session_state.selected_view_idx = None
 
-# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 + [요청 반영] 우측 상단 GitHub/메뉴 및 불필요한 아이콘 숨기기
+# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 + 스마트폰 시뮬레이터 및 특수 자막 애니메이션 효과 정의
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
@@ -60,10 +60,80 @@ st.markdown("""
     [data-testid="stSidebarHeader"] {
         display: none !important;
     }
+
+    /* 📱 초고화질 세로형 숏폼 스마트폰 시뮬레이터 스타일 단독 커스텀 */
+    .phone-container {
+        width: 320px;
+        height: 560px;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        border: 8px solid #333;
+        border-radius: 32px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        margin: 10px auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .phone-overlay-gradient {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+        z-index: 1;
+    }
+    .phone-badge {
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        background: rgba(255, 75, 75, 0.9);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 2;
+        letter-spacing: 1px;
+        animation: pulse 2s infinite;
+    }
+    .phone-content-box {
+        z-index: 2;
+        text-align: center;
+        width: 100%;
+        padding: 0 10px;
+    }
+    .sim-hook {
+        color: #ffeb3b;
+        font-size: 22px;
+        font-weight: 900;
+        text-shadow: 0 3px 6px rgba(0,0,0,0.8);
+        margin-bottom: 25px;
+        word-break: keep-all;
+        line-height: 1.4;
+    }
+    .sim-script {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        line-height: 1.6;
+        word-break: keep-all;
+        background: rgba(0,0,0,0.4);
+        padding: 12px;
+        border-radius: 12px;
+        border-left: 4px solid #ff4b4b;
+    }
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (플레이스홀더 및 버튼 내 EB74 문구 제거 완료)
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
@@ -113,14 +183,14 @@ LANG_PACK = {
         "title": "💎 グローバル AI 숏폼 製造工場 Enterprise",
         "subtitle": "上位 1% 独占的グローバル無人ショート動画生成オーケ스트レーター",
         "sidebar_title": "⚙️ 管制センター (Control)",
-        "license_label": "🔑 マスターライセンスキー入力",
+        "license_label": "🔑 マスターライセンスキー 입력",
         "license_ph": "라이선스 키를 입력해주세요...",
         "lang_label": "🌐 시스템 UI 言語",
         "m1": "GPT-4o-Mini 同期",
         "m2": "暗号化済みストレージ",
         "m3": "ライセンス階層",
         "p_name_label": "📦 商品・サービス名",
-        "p_name_ph": "例：エコタンブラー、業務自動化SaaSなど",
+        "p_name_ph": "例：エコタンブラー、業務自動화SaaSなど",
         "feat_label": "🎯 商品の主な特徴とターゲット層",
         "feat_ph": "例：24時間保冷可能 / トレンディなデザインを好む20〜30代の会社員向け",
         "btn_generate": "🚀 独占ショート動画マーケ팅キット一括製造開始",
@@ -209,14 +279,13 @@ with st.sidebar:
     
     st.write("---")
     
-    # 라이선스 인증 인터페이스 (placeholders에서 EB74 제거 유지)
+    # 라이선스 인증 인터페이스
     license_input = st.text_input(L["license_label"], placeholder=L["license_ph"], type="password")
     
     # 라이선스 키 조건 검증 (마스터 키: EB74)
     is_licensed = (license_input == "EB74")
     
     if is_licensed:
-        # 라이선스 활성화 상태 UI
         st.markdown(f"""
         <div class="success-box">
             <h4 style="color:#24b47e; margin:0 0 5px 0;">{L["status_active"]}</h4>
@@ -224,7 +293,6 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     else:
-        # 라이선스 제한 상태 UI
         st.markdown(f"""
         <div class="paywall-box">
             <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
@@ -242,7 +310,7 @@ st.title(L["title"])
 st.subheader(L["subtitle"])
 st.write("---")
 
-# 하이엔드 테마 지표 대시보드 (메트릭 내부 이모지/아이콘 제거 유지)
+# 하이엔드 테마 지표 대시보드
 mc1, mc2, mc3, mc4 = st.columns(4)
 with mc1: st.metric(label=L["m1"], value="Stable", delta="99.98% Latency")
 with mc2: st.metric(label=L["m2"], value=f"{len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
@@ -335,8 +403,26 @@ with col2:
             st.markdown(f"### 🖥️ Enterprise Workspace Monitor")
             st.caption(f"🧬 Generation Node Timestamp: {current_data['timestamp']}")
             
-            tab1, tab2, tab3 = st.tabs(["📌 High-Hook Script", "🎨 AI Video Render Prompt", "📊 Advanced Analytics"])
+            # 💡 기존 3개 탭에서 "📸 Live Video Player" 탭을 첫 번째 순서로 새로 추가!
+            tab0, tab1, tab2, tab3 = st.tabs(["📸 Live Video Player", "📌 High-Hook Script", "🎨 AI Video Render Prompt", "📊 Advanced Analytics"])
             
+            with tab0:
+                st.markdown("**⚡ Live Auto-Generated Short-form Visual Layer**")
+                st.caption("AI 대본과 훅 레이어를 결합하여 정밀 설계된 9:16 모바일 전용 시뮬레이터 뷰어입니다.")
+                
+                # 시뮬레이터에 생성된 데이터를 결합하여 HTML 주입
+                html_simulator = f"""
+                <div class="phone-container">
+                    <div class="phone-overlay-gradient"></div>
+                    <div class="phone-badge">LIVE PREVIEW</div>
+                    <div class="phone-content-box">
+                        <div class="sim-hook">{current_data['hook']}</div>
+                        <div class="sim-script">{current_data['script']}</div>
+                    </div>
+                </div>
+                """
+                st.markdown(html_simulator, unsafe_allow_html=True)
+                
             with tab1:
                 st.markdown(f"**⚡ Hook Headline:** `{current_data['hook']}`")
                 st.markdown("**🎬 Multi-Language Video Production Script:**")
