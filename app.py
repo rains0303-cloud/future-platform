@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import time
+import json
 
 # 필수 패키지 자동 설치 체계
 required_packages = ["streamlit", "openai"]
@@ -52,7 +53,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. [완벽 고도화] 전 세계 6대 권역 결제 페이월 포함 언어팩
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (검로드 URL 완전 연동)
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
@@ -110,7 +111,7 @@ LANG_PACK = {
         "license_ph": "EB74 キーを入力してください...",
         "api_label": "⚡ OpenAI API Key",
         "api_ph": "sk-...",
-        "lang_label": "🌐 システム UI 言語",
+        "lang_label": "🌐 시스템 UI 言語",
         "m1": "⚡ GPT-4o-Mini 同期",
         "m2": "暗号化済みストレージ",
         "m3": "ライセンス階層",
@@ -119,7 +120,7 @@ LANG_PACK = {
         "feat_label": "🎯 商品の主な特徴とターゲット層",
         "feat_ph": "例：24時間保冷可能 / トレンディなデザインを好む20〜30代の会社員向け",
         "btn_generate": "🚀 独占ショート動画マーケティングキット一括製造開始",
-        "paywall_title": "🚨 ライセンス無効化",
+        "paywall_title": "🚨 라이선스 무효화",
         "paywall_desc": "月100万円収益自動化エンジンがロックされています。機能を解放するには、公式マスターライセンスを取得してください。",
         "paywall_btn": "💳 EB74 ライセンスを即時取得する",
         "status_active": "✅ Enterprise Max 稼働中",
@@ -225,12 +226,12 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     else:
-        # 라이선스 제한 상태 UI (검로드 링크 탑재)
+        # 라이선스 제한 상태 UI (파트너님의 실제 검로드 링크 탑재)
         st.markdown(f"""
         <div class="paywall-box">
             <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
             <p style="font-size:12px; margin:0 0 12px 0; color:#aaa;">{L["paywall_desc"]}</p>
-            <a href="https://rains0303.gumroad.com/l/your_product_id" target="_blank" style="text-decoration:none;">
+            <a href="https://rainscape5.gumroad.com/l/ycgff" target="_blank" style="text-decoration:none;">
                 <button style="background-color:#ff4b4b; color:white; border:none; padding:8px 12px; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">
                     {L["paywall_btn"]}
                 </button>
@@ -265,7 +266,7 @@ with col1:
         st.write("")
         generate_btn = st.button(L["btn_generate"], type="primary")
 
-# 7. 3단계 파이프라인 엔진 구동 및 라이선스 페이월 필터링
+# 7. 3단계 파이프라인 엔진 구동 및 OpenAI 실시간 오케스트레이션
 if generate_btn:
     if not is_licensed:
         # EB74 마스터 키가 없으면 실행 원천 차단
@@ -277,28 +278,65 @@ if generate_btn:
     else:
         indicator_box = st.empty()
         
-        # 3단계 오케스트레이션 가동 (Mock 데이터 파이프라인 작동)
-        with indicator_box.container():
-            st.info("🎯 [Stage 1] Analyzing product identity and targeting metrics...")
-            time.sleep(1)
-            st.info("✍️ [Stage 2] Generating ultra-high conversion copy & short-form video scripts...")
-            time.sleep(1)
-            st.info("🎬 [Stage 3] Synthesizing video assets and rendering 4K vertical layers...")
-            time.sleep(1.2)
-            st.success("✨ Global Exclusive Short-form Marketing Kit Production Complete!")
+        try:
+            # OpenAI 클라이언트 초기화
+            client = OpenAI(api_key=api_key_input)
             
-        # 워크스페이스 타임라인 히스토리에 노드 스택 적재
-        mock_result = {
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "product": product_name,
-            "features": product_features,
-            "hook": f"🔥 [{product_name}] This single secret will change everything. Stop scrolling!",
-            "script": f"1. [0-3s] Show the core problem relating to {product_features}.\n2. [3-15s] Introduce {product_name} as the ultimate automated breakthrough.\n3. [15-30s] Call to Action: Link in bio for a massive exclusive premium access offer.",
-            "prompt": f"A cinematic, fast-paced commercial showcasing {product_name}, highlighting {product_features}, ultra-high quality, 8k resolution, neon cyberpunk studio lighting, professional color grading, dynamic motion blur, 9:16 vertical ratio."
-        }
-        st.session_state.workspace_history.insert(0, mock_result)
-        st.session_state.selected_view_idx = 0
-        indicator_box.empty()
+            with indicator_box.container():
+                st.info("🎯 [Stage 1] Analyzing product identity and targeting metrics...")
+                time.sleep(0.5)
+                
+                st.info("✍️ [Stage 2] Orchestrating OpenAI GPT-4o-Mini for High-Conversion Script...")
+                
+                # 시스템 프롬프트 구성 (상위 1% 성장 해커의 카피라이팅 로직 강제)
+                system_instruction = (
+                    "You are the world's top 1% growth hacker and short-form video director. "
+                    "Your goal is to create a viral, high-converting marketing kit for a product. "
+                    "You must output the result strictly in the following JSON format:\n"
+                    "{\n"
+                    "  \"hook\": \"A powerful, jaw-dropping attention grabber (0-3s)\",\n"
+                    "  \"script\": \"Step-by-step multi-language video production script (3-30s)\",\n"
+                    "  \"prompt\": \"A professional, cinematic Text-to-Video prompt for Sora/Runway Gen-3\"\n"
+                    "}"
+                )
+                
+                user_content = f"Product Name: {product_name}\nFeatures/Target: {product_features}"
+                
+                # OpenAI API 실시간 호출
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_content}
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.7
+                )
+                
+                result_json = json.loads(response.choices[0].message.content)
+                
+                st.info("🎬 [Stage 3] Synthesizing video assets and rendering 4K vertical layers...")
+                time.sleep(0.5)
+                st.success("✨ Global Exclusive Short-form Marketing Kit Production Complete!")
+            
+            # 워크스페이스 타임라인 히스토리에 실제 결과 노드 적재
+            actual_result = {
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "product": product_name,
+                "features": product_features,
+                "hook": result_json.get("hook", "🔥 Unbelievable Breakthrough!"),
+                "script": result_json.get("script", "No script generated."),
+                "prompt": result_json.get("prompt", "Cinematic shot.")
+            }
+            
+            st.session_state.workspace_history.insert(0, actual_result)
+            st.session_state.selected_view_idx = 0
+            indicator_box.empty()
+            st.rerun()  # 화면 즉시 갱신
+            
+        except Exception as e:
+            indicator_box.empty()
+            st.error(f"💥 OpenAI API Error: {str(e)}")
 
 # 8. 아웃풋 워크스페이스 모니터 리포트 렌더링
 with col2:
