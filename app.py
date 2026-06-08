@@ -1,14 +1,13 @@
 import sys
 import subprocess
 import time
-import json
 
 # 필수 패키지 자동 설치 체계
 required_packages = ["streamlit", "openai"]
-for package in required_packages:
+for package in required_packages:  
     try:
         import streamlit
-    except ImportError:
+    except ImportError:        
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 import streamlit as st
@@ -18,54 +17,38 @@ from openai import OpenAI
 st.set_page_config(page_title="Global AI Video Factory Enterprise", page_icon="💎", layout="wide")
 
 # 세션 상태 엔진 초기화
-if "workspace_history" not in st.session_state:
+if "workspace_history" not in st.session_state:    
     st.session_state.workspace_history = []
-if "selected_view_idx" not in st.session_state:
+if "selected_view_idx" not in st.session_state:    
     st.session_state.selected_view_idx = None
-# [신규 추가] 유저별 무료 이용 횟수 추적 카운터
-if "free_usage_count" not in st.session_state:
-    st.session_state.free_usage_count = 0
+if "usage_counter" not in st.session_state:
+    st.session_state.usage_counter = 0
 
-# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 (우측 상단 아이콘 및 하단 푸터 완전 제거)
+# 🌟 [중요] 파트너님의 OpenAI API Key를 여기에 안전하게 세팅합니다.
+# (추후 Streamlit Cloud 배포 시 .st/secrets 나 환경변수로 관리하면 더욱 안전합니다)
+CRITICAL_MASTER_OPENAI_KEY = "sk-proj-YOUR_ACTUAL_OPENAI_API_KEY_HERE"
+
+# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 (Manage app 등 마스킹 포함)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
     
-    /* 전체 기본 폰트 최적화 */
-    html, body, [data-testid="stSidebarUserserviceAuth_container"] {
+    /* 전체 폰트 및 배경 스케일링 */
+    html, body, [data-testid="stSidebarContent"] {
         font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        background-color: #0E1117;
+        color: #E2E8F0;
     }
     
-    /* 우측 상단 Streamlit 호스팅 관련 아이콘셋 전면 숨김 (독점 브랜딩 락) */
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
+    /* 개발자 모드 및 스트림릿 기본 UI 마스킹 (Manage app 차단) */
+    #MainMenu, footer, [data-testid="stDecoration"], [data-testid="bundle-theme-styles"] {display: none !important;}
     footer {visibility: hidden;}
-    div[data-testid="stDecoration"] {display: none;}
-    button[title="View source code"] {display: none;}
+    button[title="View source code"] {display: none !important;}
+    div[data-testid="stActionButton"] {display: none !important;}
     
-    /* 버튼 스타일링 */
-    .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        font-weight: 700;
-        transition: all 0.3s ease;
-    }
-    
-    /* 결제 유도 및 성공 박스 디자인 */
-    .paywall-box {
-        background-color: #ff4b4b1a;
-        border: 1px solid #ff4b4b;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-    .success-box {
-        background-color: #24b47e1a;
-        border: 1px solid #24b47e;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
+    /* 하단 Streamlit 배포자 관리자 전용 노드 강제 차단 */
+    iframe[title="Manage app"], .viewerBadge_container__1QSob, .viewerBadge_link__276wN {display: none !important;}
+    div[class^="viewerBadge"] {display: none !important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -74,324 +57,160 @@ LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
         "subtitle": "상위 1% 독점적 글로벌 무인 숏폼 비디오 생성 오케스트레이터",
-        "sidebar_title": "⚙️ 관제 센터 (Control)",
-        "license_label": "🔑 마스터 라이선스 키 입력",
-        "license_ph": "인증 키를 입력하세요...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 시스템 UI 언어",
-        "m1": "⚡ GPT-4o-Mini 동기화",
-        "m2": "Encrypted 노드 스토리지",
-        "m3": "라이선스 등급",
-        "p_name_label": "📦 판매할 상품/서비스 이름",
-        "p_name_ph": "예: 친환경 텀블러, 비즈니스 자동화 SaaS 등",
-        "feat_label": "🎯 상품 핵심 특징 및 타겟층 (세부 정보)",
-        "feat_ph": "예: 24시간 얼음 보존 가능 / 트렌디한 디자인을 선호하는 2030 직장인 타겟",
-        "btn_generate": "🚀 독점 숏폼 비디오 마케팅 킷 일괄 제조 개시",
-        "paywall_title": "🚨 라이선스 비활성화됨",
-        "paywall_desc": "월 1,000만 원 수익 자동화 엔진이 잠겨있습니다. 기능을 개방하려면 정식 마스터 라이선스를 취득하세요.",
-        "paywall_btn": "💳 마스터 라이센스 즉시 획득",
-        "status_active": "✅ Enterprise Max 가동 중",
-        "status_desc": "모든 제한이 해제되었습니다. 무제한 글로벌 트래픽 장악 모드가 활성화 상태입니다.",
-        "err_license": "❌ 무료 체험(1회)이 만료되었습니다! 2번째 제조부터는 사이드바에서 마스터 키를 인증하셔야 합니다."
+        "sidebar_title": "🔐 라이선스 제어 센터",
+        "license_label": "마스터 라이선스 키 입력 (EB74)",
+        "license_ph": "시작키 또는 구독 라이선스를 입력하세요",
+        "btn_generate": "🚀 초고속 숏폼 비디오 시나리오 제조",
+        "p_name_label": "📦 제품/서비스 이름",
+        "p_name_ph": "예: 스마트 텀블러, 무선 마우스, 영어 회화 앱",
+        "feat_label": "🎯 핵심 타겟 및 제품 장점 (세부 설명)",
+        "feat_ph": "예: 20대 직장인 타겟, 얼음이 48시간 유지됨, 감성적인 파스텔 디자인",
+        "lang_select": "🌐 시스템 UI 언어 변경",
+        "paywall_title": "🚫 프리미엄 페이월 활성화 (무료 체험 종료)",
+        "paywall_desc": "파트너님, 첫 번째 무료 크레딧이 전량 소진되었습니다. 지속적인 상위 1% 독점 마케팅 숏폼 생산을 위해 라이선스를 활성화하거나 구독 결제를 완료해 주세요.",
+        "paywall_btn": "💳 즉시 결제 및 무제한 라이선스 발급 받기",
+        "m1": "연동 AI 엔진 인프라 상태",
+        "m2": "안전 자산 저장소",
+        "m3": "계정 권한 등급"
     },
     "English 🇺🇸": {
         "title": "💎 Global AI Video Factory Enterprise",
-        "subtitle": "Top 1% Exclusive Global Automated Short-form Video Orchestrator",
-        "sidebar_title": "⚙️ Control Center",
-        "license_label": "🔑 Master License Key",
-        "license_ph": "Enter Activation Key...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 System UI Language",
-        "m1": "⚡ GPT-4o-Mini Sync",
-        "m2": "Encrypted Node Storage",
-        "m3": "License Tier",
+        "subtitle": "Top 1% Exclusive Global Unmanned Short-form Video Generator Orchestrator",
+        "sidebar_title": "🔐 License Control Center",
+        "license_label": "Enter Master License Key (EB74)",
+        "license_ph": "Enter your Master Key or Subscription Key",
+        "btn_generate": "🚀 Manufacture High-Conversion Video Scenario",
         "p_name_label": "📦 Product/Service Name",
-        "p_name_ph": "e.g., Eco Tumbler, Automation SaaS",
-        "feat_label": "🎯 Key Features & Target Audience",
-        "feat_ph": "e.g., Keeps ice for 24 hours / Target: 20s-30s professionals loving trendy designs",
-        "btn_generate": "🚀 Launch Exclusive Short-form Video Kit Production",
-        "paywall_title": "🚨 License Deactivated",
-        "paywall_desc": "The $10,000/mo revenue automation engine is locked. Acquire a valid master license to unlock full access.",
-        "paywall_btn": "💳 Get Master License Instantly",
-        "status_active": "✅ Enterprise Max Active",
-        "status_desc": "All restrictions lifted. Global traffic domination mode is fully operational.",
-        "err_license": "❌ Free trial (1 credit) expired! From the 2nd production onwards, you must authorize the Master Key."
+        "p_name_ph": "e.g., Smart Tumbler, Wireless Mouse, English Learning App",
+        "feat_label": "🎯 Core Target & Key Benefits",
+        "feat_ph": "e.g., Targets 20s office workers, keeps ice for 48 hours, aesthetic pastel design",
+        "lang_select": "🌐 Change System UI Language",
+        "paywall_title": "🚫 Premium Paywall Activated (Trial Expired)",
+        "paywall_desc": "Your first free credit has been completely exhausted. Please activate your license or complete your subscription to continue manufacturing top 1% exclusive short-form scenarios.",
+        "paywall_btn": "💳 Instant Purchase & Unlock Unlimited License",
+        "m1": "Connected AI Engine Infrastructure",
+        "m2": "Secure Asset Vault",
+        "m3": "Account Tier Status"
     },
     "日本語 🇯🇵": {
-        "title": "💎 グローバル AI 숏폼 製造工場 Enterprise",
+        "title": "💎 グローバル AI ショートフォーム製造工場 Enterprise",
         "subtitle": "上位 1% 独占的グローバル無人ショート動画生成オーケストレーター",
-        "sidebar_title": "⚙️ 管制センター (Control)",
-        "license_label": "🔑 マスターライセンスキー入力",
-        "license_ph": "認証キーを入力してください...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 시스템 UI 言語",
-        "m1": "⚡ GPT-4o-Mini 同期",
-        "m2": "暗号化済みストレージ",
-        "m3": "ライセンス階層",
-        "p_name_label": "📦 商品・サービス名",
-        "p_name_ph": "例：エコタンブラー、業務自動化SaaSなど",
-        "feat_label": "🎯 商品の主な特徴とターゲット層",
-        "feat_ph": "例：24時間保冷可能 / トレンディなデザインを好む20〜30代の会社員向け",
-        "btn_generate": "🚀 独占ショート動画マーケティングキット一括製造開始",
-        "paywall_title": "🚨 라이선스 무효화",
-        "paywall_desc": "月100万円収益 automatic エンジンがロックされています。機能を解放するには、公式マスターライセンスを取得してください。",
-        "paywall_btn": "💳 マスターライセンス即時獲得",
-        "status_active": "✅ Enterprise Max 稼働中",
-        "status_desc": "すべての制限が解除されました。無制限のグローバルトラフィック掌握モードが有効です。",
-        "err_license": "❌ 無料体験（1回）が満了しました！2回目以降の製造には、サイド바でマスターキーを認証する必要があります。"
+        "sidebar_title": "🔐 ライセンス管理センター",
+        "license_label": "マスターライセンスキー入力 (EB74)",
+        "license_ph": "マスターキーまたは購読キーを入力してください",
+        "btn_generate": "🚀 高転換ショート動画シナリオ製造",
+        "p_name_label": "📦 製品・サービス名",
+        "p_name_ph": "例：スマートタンブラー、ワイヤレスマウス、英会話アプリ",
+        "feat_label": "🎯 コアターゲットと製品の強み",
+        "feat_ph": "例：20代のオフィスワーカー対象、氷が48時間キープ、エモーショナルなパステルデザイン",
+        "lang_select": "🌐 システムUI言語の変更",
+        "paywall_title": "🚫 プレミアムペイウォール有効化 (無料体験終了)",
+        "paywall_desc": "最初の無料クレジットがすべて消費されました。上位1%の独占的なマーケティング動画を継続して作成するには、ライセンスを有効にするか、購読決済を完了してください。",
+        "paywall_btn": "💳 今すぐ決済して無制限ライセンスを取得",
+        "m1": "連携AIエンジンインフラ状態",
+        "m2": "安全資産ストレージ",
+        "m3": "アカウント権限階級"
     },
     "简体中文 🇨🇳": {
         "title": "💎 全球 AI 短视频制造工厂 Enterprise",
-        "subtitle": "前 1% 独占性全球无人值守短视频生成编排器",
-        "sidebar_title": "⚙️ 控制中心",
-        "license_label": "🔑 输入主授权码",
-        "license_ph": "请输入激活码...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 System UI 语言",
-        "m1": "⚡ GPT-4o-Mini 同步",
-        "m2": "加密节点存储",
-        "m3": "授权级别",
+        "subtitle": "前 1% 垄断级全球无人值守短视频生成编排器",
+        "sidebar_title": "🔐 许可证控制中心",
+        "license_label": "输入主许可证密钥 (EB74)",
+        "license_ph": "请输入主密钥 or 订阅激活码",
+        "btn_generate": "🚀 高转化短视频剧本智能制造",
         "p_name_label": "📦 产品/服务名称",
-        "p_name_ph": "例如：环保保温杯、业务自动化 SaaS 等",
-        "feat_label": "🎯 产品核心卖点与目标受众",
-        "feat_ph": "例如：24小时强效保冰 / 针对喜欢时尚设计的 2030 白领阶层",
-        "btn_generate": "🚀 开启独占短视频营销套件批量制造",
-        "paywall_title": "🚨 授权未激活",
-        "paywall_desc": "月入万刀的自动化收益引擎处于锁定状态。请获取正式主授权码以释放全部核心潜能。",
-        "paywall_btn": "💳 立即获得硕士许可证",
-        "status_active": "✅ Enterprise Max 正常运行",
-        "status_desc": "限制已全额解除。全球流量霸屏模式已处于激活状态。",
-        "err_license": "❌ 免费试用（1次）已用尽！从第2次制造开始，您必须在侧边栏验证主授权码。"
+        "p_name_ph": "例如：智能保温杯、无线鼠标、英语学习App",
+        "feat_label": "🎯 核心目标人群与产品优势",
+        "feat_ph": "例如：面向20岁左右的职场新人、保冰效果长达48小时、高颜值马卡龙色系",
+        "lang_select": "🌐 切换系统 UI 语言",
+        "paywall_title": "🚫 高级付费墙已激活 (免费体验结束)",
+        "paywall_desc": "您的首个免费额度已完全耗尽。为了能够持续生产前1%垄断级的营销短视频，请激活主许可证或完成订阅支付。",
+        "paywall_btn": "💳 立即支付并开通无限制特权",
+        "m1": "对接 AI 引擎基础设施状态",
+        "m2": "安全资产保险库",
+        "m3": "账户权限等级"
     },
     "Español 🇪🇸": {
-        "title": "💎 Global AI Video Factory Enterprise",
-        "subtitle": "Orquestador Global Automático Exclusivo del Top 1% para Videos Cortos",
-        "sidebar_title": "⚙️ Centro de Control",
-        "license_label": "🔑 Clave de Licencia Maestra",
-        "license_ph": "Ingrese la clave de activación...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 Idioma del Sistema UI",
-        "m1": "⚡ Sincronización GPT-4o-Mini",
-        "m2": "Almacenamiento Encriptado",
-        "m3": "Nivel de Licencia",
+        "title": "💎 Fábrica Global de IA para Videos Cortos Enterprise",
+        "subtitle": "Orquestrador de Creación de Video Corto No Tripulado Exclusivo del Top 1%",
+        "sidebar_title": "🔐 Centro de Control de Licencias",
+        "license_label": "Ingrese la Clave de Licencia Maestra (EB74)",
+        "license_ph": "Ingrese su clave maestra o código de suscripción",
+        "btn_generate": "🚀 Fabricar Escenario de Video de Alta Conversión",
         "p_name_label": "📦 Nombre del Producto/Servicio",
-        "p_name_ph": "ej., Termo Ecológico, SaaS de Automatización",
-        "feat_label": "🎯 Características Clave y Público Objetivo",
-        "feat_ph": "ej., Mantiene el hielo por 24h / Dirigido a profesionales de 20-30 años",
-        "btn_generate": "🚀 Iniciar Producción del Kit de Video de Marketing Exclusivo",
-        "paywall_title": "🚨 Licencia Desactivada",
-        "paywall_desc": "El motor de automatización de ingresos de $10,000/mes está bloqueado. Adquiera una licencia maestra para desbloquearlo.",
-        "paywall_btn": "💳 Obtener Licencia Maestra Al Instante",
-        "status_active": "✅ Enterprise Max Operando",
-        "status_desc": "Todas las restricciones eliminadas. El modo de dominación de tráfico global está activo.",
-        "err_license": "❌ ¡Prueba gratuita (1 uso) agotada! A partir de la segunda producción, debe autorizar la Clave Maestra."
+        "p_name_ph": "Ej: Termo Inteligente, Mouse Inalámbrico, App de Idiomas",
+        "feat_label": "🎯 Target Central y Beneficios Clave",
+        "feat_ph": "Ej: Dirigido a oficinistas de 20 años, mantiene el hielo por 48 horas, diseño pastel estético",
+        "lang_select": "🌐 Cambiar Idioma de la UI del Sistema",
+        "paywall_title": "🚫 Paywall Premium Activado (Prueba Expirada)",
+        "paywall_desc": "Su primer crédito gratuito se ha agotado por completo. Active su licencia o complete su suscripción para continuar fabricando escenarios de video exclusivos.",
+        "paywall_btn": "💳 Pago Instantáneo y Desbloquear Licencia Ilimitada",
+        "m1": "Infraestructura del Motor de IA Conectado",
+        "m2": "Bóveda de Activos Segura",
+        "m3": "Nivel de Rango de Cuenta"
     },
     "Tiếng Việt 🇻🇳": {
-        "title": "💎 Global AI Video Factory Enterprise",
-        "subtitle": "Hệ Thống Tự Động Hóa Sản Xuất Video Ngắn Độc Quyền Top 1% Toàn Cầu",
-        "sidebar_title": "⚙️ Trung Tâm Điều Khiển",
-        "license_label": "🔑 Khóa Cấp Phép Master",
-        "license_ph": "Nhập mã kích hoạt...",
-        "api_label": "⚡ OpenAI API Key",
-        "api_ph": "sk-...",
-        "lang_label": "🌐 Ngôn Ngữ Hệ Thống",
-        "m1": "⚡ Đồng Bộ GPT-4o-Mini",
-        "m2": "Lưu Trữ Mã Hóa Node",
-        "m3": "Hạng Cấp Phép",
+        "title": "💎 Nhà Máy Chế Tạo Video Ngắn AI Toàn Cầu Enterprise",
+        "subtitle": "Hệ Thống Điều Phối Tạo Video Ngắn Không Người Lái Độc Quyền Top 1% Toàn Cầu",
+        "sidebar_title": "🔐 Trung Tâm Kiểm Soát Bản Quyền",
+        "license_label": "Nhập Khóa Bản Quyền Master (EB74)",
+        "license_ph": "Nhập khóa chính hoặc mã đăng ký của bạn",
+        "btn_generate": "🚀 Sản Xuất Kịch Bản Video Chuyển Đổi Cao",
         "p_name_label": "📦 Tên Sản Phẩm/Dịch Vụ",
-        "p_name_ph": "VD: Bình Giữ Nhiệt Thân Thiện Môi Trường, SaaS Tự Động Hóa",
-        "feat_label": "🎯 Tính Năng Cốt Lõi & Khách Hàng Mục Tiêu",
-        "feat_ph": "VD: Giữ đá suốt 24 giờ / Nhắm đến dân văn phòng 20-30 tuổi thích thiết kế hợp thời trang",
-        "btn_generate": "🚀 Bắt Đầu Sản Xuất Bộ Kit Video Marketing Ngắn Độc Quyền",
-        "paywall_title": "🚨 Bản Quyền Chưa Kích Hoạt",
-        "paywall_desc": "Hệ thống tự động hóa doanh thu 200 triệu VNĐ/tháng đang bị khóa. Hãy sở hữu bản quyền Master để mở khóa.",
-        "paywall_btn": "💳 Sở Hữu Giấy Phép Thầy Ngay",
-        "status_active": "✅ Enterprise Max Đang Chạy",
-        "status_desc": "Mọi giới hạn đã được gỡ bỏ. Chế độ chiếm lĩnh lưu lượng truy cập toàn cầu đã sẵn sàng.",
-        "err_license": "❌ Lượt dùng thử miễn phí (1 lần) đã hết! Từ lần sản xuất thứ 2, bạn phải xác thực Mã Master ở thanh bên."
+        "p_name_ph": "Ví dụ: Bình giữ nhiệt thông minh, Chuột không dây, Ứng dụng học tiếng Anh",
+        "feat_label": "🎯 Khách Hàng Mục Tiêu & Lợi Ích Cốt Lõi",
+        "feat_ph": "Ví dụ: Hướng đến dân văn phòng độ tuổi 20, giữ đá 48 giờ, thiết kế màu pastel thẩm mỹ",
+        "lang_select": "🌐 Thay Đổi Ngôn Ngữ Hệ Thống",
+        "paywall_title": "🚫 Đã Kích Hoạt Tường Thu Phí Cao Cấp (Hết Hạn Dùng Thử)",
+        "paywall_desc": "Số điểm dùng thử miễn phí đầu tiên của bạn đã được sử dụng hết. Vui lòng kích hoạt bản quyền hoặc hoàn tất thanh toán để tiếp tục sản xuất.",
+        "paywall_btn": "💳 Thanh Toán Ngay & Mở Khóa Bản Quyền Không Giới Hạn",
+        "m1": "Trạng Thái Hạ Tầng Cơ Sở AI",
+        "m2": "Kho Lưu Trữ Tài Sản An Toàn",
+        "m3": "Cấp Bậc Quyền Hạn Tài Khoản"
     }
 }
 
-# 4. 사이드바 렌더링 및 심리적 페이월 엔진
+# 4. 사이드바 제어 패널 구축 (고객용 OpenAI Key 입력란 영구 제거)
 with st.sidebar:
-    st.markdown(f"## ⚙️ Control Tower")
-    
-    # 6대 권역 언어 셀렉터
+    st.markdown(f"### {LANG_PACK['English 🇺🇸']['sidebar_title']}")
     site_lang = st.selectbox("🌐 UI Language", list(LANG_PACK.keys()))
-    L = LANG_PACK[site_lang] # 선택된 언어팩 지정
+    L = LANG_PACK[site_lang]
     
     st.write("---")
+    st.markdown(f"<h4>{L['license_label']}</h4>", unsafe_allow_html=True)
+    license_input = st.text_input("", placeholder=L["license_ph"], type="password", label_visibility="collapsed")
     
-    # 라이선스 인증 인터페이스
-    license_input = st.text_input(L["license_label"], placeholder=L["license_ph"], type="password")
-    
-    # 라이선스 키 조건 검증 (마스터 키 백엔드 락)
-    is_licensed = (license_input == "EB74")
-    
-    if is_licensed:
-        st.markdown(f"""
-        <div class="success-box">
-            <h4 style="color:#24b47e; margin:0 0 5px 0;">{L["status_active"]}</h4>
-            <p style="font-size:12px; margin:0; color:#888;">{L["status_desc"]}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        # 라이선스가 없고 무료 기회가 소진되었을 때 눈에 띄게 경고 문구 추가
-        paywall_msg = L["paywall_desc"]
-        if st.session_state.free_usage_count >= 1:
-            paywall_msg = "⚠️ [무료 체험 만료] 2번째 이용부터는 마스터 라이선스를 획득해야 전체 엔진 인프라를 잠금 해제할 수 있습니다."
-            
-        st.markdown(f"""
-        <div class="paywall-box">
-            <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
-            <p style="font-size:12px; margin:0 0 12px 0; color:#aaa;">{paywall_msg}</p>
-            <a href="https://rainscape5.gumroad.com/l/ycgff" target="_blank" style="text-decoration:none;">
-                <button style="background-color:#ff4b4b; color:white; border:none; padding:8px 12px; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">
-                    {L["paywall_btn"]}
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    st.write("---")
-    api_key_input = st.text_input(L["api_label"], placeholder=L["api_ph"], type="password")
+    is_master_active = (license_input == "EB74")
 
-# 5. 메인 레이아웃 타이틀 팩
+# 5. 메인 대시보드 UI 레이아웃
 st.title(L["title"])
-st.subheader(L["subtitle"])
-st.write("---")
+st.markdown(f"<p style='color:#94A3B8; font-size:1.2rem; margin-top:-10px;'>{L['subtitle']}</p>", unsafe_allow_html=True)
+st.write("")
 
-# 하이엔드 테마 지표 대시보드 (라이선스 등급란에 무료체험 상태 표시)
+# 상단 실시간 하이엔드 지표 메트릭 배치
 mc1, mc2, mc3, mc4 = st.columns(4)
-with mc1: st.metric(label=L["m1"], value="⚡ Stable", delta="99.98% Latency")
-with mc2: st.metric(label=L["m2"], value=f"💾 {len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
+with mc1:
+    st.metric(label=L["m1"], value="⚡ GPT-4o-Mini Sync", delta="99.98% Latency Stable")
+with mc2:
+    st.metric(label=L["m2"], value=f"💾 {len(st.session_state.workspace_history)} Nodes", delta="Encrypted Storage")
+with mc3:
+    if is_master_active:
+        st.metric(label=L["m3"], value="Enterprise Max", delta="All Access Unlocked")
+    elif st.session_state.usage_counter == 0:
+        st.metric(label=L["m3"], value="1 Free Credit Left", delta="Trial Active 🔓")
+    else:
+        st.metric(label=L["m3"], value="Locked 🔒", delta="Trial Expired")
+with mc4:
+    st.metric(label="Global Traffic Matrix", value="🌍 Active", delta="CDN Powered")
 
-# 라이선스 상태 다이나믹 대시보드
-if is_licensed:
-    license_status_value = "Enterprise Max"
-    license_status_delta = "Full Access Granted"
-elif st.session_state.free_usage_count == 0:
-    license_status_value = "1 Free Credit Left"
-    license_status_delta = "Trial Active 🔓"
-else:
-    license_status_value = "Locked 🔒"
-    license_status_delta = "Trial Expired (Paywall)"
-
-with mc3: st.metric(label=L["m3"], value=license_status_value, delta=license_status_delta)
-with mc4: st.metric(label="Global Traffic Matrix", value="🌍 Active", delta="CDN Powered")
 st.write("---")
 
-# 6. 스플릿 구조 설계 (인풋 콘솔 & 아웃풋 모니터)
-col1, col2 = st.columns([1, 1.2], gap="large")
+# 6. 비즈니스 코어 로직 제어 (1회 무료 개방 및 페이월 차단 설계)
+paywall_triggered = (not is_master_active and st.session_state.usage_counter >= 1)
 
-with col1:
-    with st.container(border=True):
-        st.markdown(f"### 📥 Input Console ({site_lang.split(' ')[0]})")
-        product_name = st.text_input(L["p_name_label"], placeholder=L["p_name_ph"])
-        product_features = st.text_area(L["feat_label"], placeholder=L["feat_ph"], height=110)
-        st.write("")
-        generate_btn = st.button(L["btn_generate"], type="primary")
-
-# 7. 1회 우회 / 2회 차단 하이브리드 페이월 엔진 제어 파트
-if generate_btn:
-    # [핵심 로직 변경점] 라이선스가 없으면서 무료 횟수까지 1회 이상 사용한 경우 철저히 차단
-    if not is_licensed and st.session_state.free_usage_count >= 1:
-        st.error(L["err_license"])
-    elif not api_key_input:
-        st.error("Please enter your OpenAI API Key in the sidebar.")
-    elif not product_name or not product_features:
-        st.warning("Please fill out the form entirely.")
-    else:
-        indicator_box = st.empty()
-        
-        try:
-            client = OpenAI(api_key=api_key_input)
-            
-            with indicator_box.container():
-                st.info("🎯 [Stage 1] Analyzing product identity and targeting metrics...")
-                time.sleep(0.5)
-                
-                st.info("✍️ [Stage 2] Orchestrating OpenAI GPT-4o-Mini for High-Conversion Script...")
-                
-                system_instruction = (
-                    "You are the world's top 1% growth hacker and short-form video director. "
-                    "Your goal is to create a viral, high-converting marketing kit for a product. "
-                    "You must output the result strictly in the following JSON format:\n"
-                    "{\n"
-                    "  \"hook\": \"A powerful, jaw-dropping attention grabber (0-3s)\",\n"
-                    "  \"script\": \"Step-by-step multi-language video production script (3-30s)\",\n"
-                    "  \"prompt\": \"A professional, cinematic Text-to-Video prompt for Sora/Runway Gen-3\"\n"
-                    "}"
-                )
-                
-                user_content = f"Product Name: {product_name}\nFeatures/Target: {product_features}"
-                
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": system_instruction},
-                        {"role": "user", "content": user_content}
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.7
-                )
-                
-                result_json = json.loads(response.choices[0].message.content)
-                
-                st.info("🎬 [Stage 3] Synthesizing video assets and rendering 4K vertical layers...")
-                time.sleep(0.5)
-                st.success("✨ Global Exclusive Short-form Marketing Kit Production Complete!")
-            
-            actual_result = {
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "product": product_name,
-                "features": product_features,
-                "hook": result_json.get("hook", "🔥 Unbelievable Breakthrough!"),
-                "script": result_json.get("script", "No script generated."),
-                "prompt": result_json.get("prompt", "Cinematic shot.")
-            }
-            
-            # 성공적 제조 시 무료 카운터 차감 (누적 가산)
-            st.session_state.free_usage_count += 1
-            
-            st.session_state.workspace_history.insert(0, actual_result)
-            st.session_state.selected_view_idx = 0
-            indicator_box.empty()
-            st.rerun()
-            
-        except Exception as e:
-            indicator_box.empty()
-            st.error(f"💥 OpenAI API Error: {str(e)}")
-
-# 8. 아웃풋 워크스페이스 모니터 리포트 렌더링
-with col2:
-    if st.session_state.selected_view_idx is not None and len(st.session_state.workspace_history) > 0:
-        current_data = st.session_state.workspace_history[st.session_state.selected_view_idx]
-        
-        with st.container(border=True):
-            st.markdown(f"### 🖥️ Enterprise Workspace Monitor")
-            st.caption(f"🧬 Generation Node Timestamp: {current_data['timestamp']}")
-            
-            tab1, tab2, tab3 = st.tabs(["📌 High-Hook Script", "🎨 AI Video Render Prompt", "📊 Advanced Analytics"])
-            
-            with tab1:
-                st.markdown(f"**⚡ Hook Headline:** `{current_data['hook']}`")
-                st.markdown("**🎬 Multi-Language Video Production Script:**")
-                st.text_area("", current_data["script"], height=130)
-                
-            with tab2:
-                st.markdown("**🖼️ Text-to-Video Engine Text Prompt Asset:**")
-                st.code(current_data["prompt"], language="text")
-                st.caption("Copy this prompt into Sora, Runway Gen-3, or Pika Labs to instantly render the master visual layer.")
-                
-            with tab3:
-                st.markdown("**📈 Estimated Performance Metrics**")
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Avg CTR Forecast", "6.8%", "+2.4% vs Industry")
-                c2.metric("Hook Retention Rate", "74.2%", "Top 1% Class")
-                c3.metric("AI Conversion Score", "94/100", "High Optimization")
+if paywall_triggered:
+    # 결제가 안 되었고 1회를 이미 썼다면 입력창 진입 차단 및 강력한 결제 링크 팝업
+    st.error(L["paywall_title"])
+    st.markdown(f"<p style='font-size:1.1rem; color:#CBD5E1;'>{L['paywall_desc']}</p>", unsafe_allow_html=True)
+    
+    # 파트너님의 검로드(
