@@ -22,8 +22,11 @@ if "workspace_history" not in st.session_state:
     st.session_state.workspace_history = []
 if "selected_view_idx" not in st.session_state:
     st.session_state.selected_view_idx = None
+# [신규 추가] 유저별 무료 이용 횟수 추적 카운터
+if "free_usage_count" not in st.session_state:
+    st.session_state.free_usage_count = 0
 
-# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 (우측 상단 아이콘 및 하단 푸터 완전 제거 락)
+# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 (우측 상단 아이콘 및 하단 푸터 완전 제거)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
@@ -33,7 +36,7 @@ st.markdown("""
         font-family: 'Inter', 'Noto Sans KR', sans-serif;
     }
     
-    /* [핵심 보안] 우측 상단 Streamlit 호스팅 관련 아이콘셋(Deploy, Manage, Menu) 전면 숨김 */
+    /* 우측 상단 Streamlit 호스팅 관련 아이콘셋 전면 숨김 (독점 브랜딩 락) */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
@@ -48,7 +51,7 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     
-    /* 결제 유도 박스 디자인 */
+    /* 결제 유도 및 성공 박스 디자인 */
     .paywall-box {
         background-color: #ff4b4b1a;
         border: 1px solid #ff4b4b;
@@ -66,7 +69,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (바뀐 문구 유지)
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
@@ -90,7 +93,7 @@ LANG_PACK = {
         "paywall_btn": "💳 마스터 라이센스 즉시 획득",
         "status_active": "✅ Enterprise Max 가동 중",
         "status_desc": "모든 제한이 해제되었습니다. 무제한 글로벌 트래픽 장악 모드가 활성화 상태입니다.",
-        "err_license": "❌ 라이선스 키가 유효하지 않습니다. 사이드바에서 마스터 키를 먼저 인증해주세요."
+        "err_license": "❌ 무료 체험(1회)이 만료되었습니다! 2번째 제조부터는 사이드바에서 마스터 키를 인증하셔야 합니다."
     },
     "English 🇺🇸": {
         "title": "💎 Global AI Video Factory Enterprise",
@@ -114,7 +117,7 @@ LANG_PACK = {
         "paywall_btn": "💳 Get Master License Instantly",
         "status_active": "✅ Enterprise Max Active",
         "status_desc": "All restrictions lifted. Global traffic domination mode is fully operational.",
-        "err_license": "❌ Invalid License Key. Please authorize the Master Key in the sidebar first."
+        "err_license": "❌ Free trial (1 credit) expired! From the 2nd production onwards, you must authorize the Master Key."
     },
     "日本語 🇯🇵": {
         "title": "💎 グローバル AI 숏폼 製造工場 Enterprise",
@@ -138,7 +141,7 @@ LANG_PACK = {
         "paywall_btn": "💳 マスターライセンス即時獲得",
         "status_active": "✅ Enterprise Max 稼働中",
         "status_desc": "すべての制限が解除されました。無制限のグローバルトラフィック掌握モードが有効です。",
-        "err_license": "❌ 라이선스 키가 무효입니다. 먼저 사이드바에서 마스터 키를 인증해주세요."
+        "err_license": "❌ 無料体験（1回）が満了しました！2回目以降の製造には、サイド바でマスターキーを認証する必要があります。"
     },
     "简体中文 🇨🇳": {
         "title": "💎 全球 AI 短视频制造工厂 Enterprise",
@@ -162,7 +165,7 @@ LANG_PACK = {
         "paywall_btn": "💳 立即获得硕士许可证",
         "status_active": "✅ Enterprise Max 正常运行",
         "status_desc": "限制已全额解除。全球流量霸屏模式已处于激活状态。",
-        "err_license": "❌ 授权码无效。请先在侧边栏中验证您的主授权码。"
+        "err_license": "❌ 免费试用（1次）已用尽！从第2次制造开始，您必须在侧边栏验证主授权码。"
     },
     "Español 🇪🇸": {
         "title": "💎 Global AI Video Factory Enterprise",
@@ -186,7 +189,7 @@ LANG_PACK = {
         "paywall_btn": "💳 Obtener Licencia Maestra Al Instante",
         "status_active": "✅ Enterprise Max Operando",
         "status_desc": "Todas las restricciones eliminadas. El modo de dominación de tráfico global está activo.",
-        "err_license": "❌ Clave de licencia inválida. Por favor, valide la Clave Maestra en la barra lateral primero."
+        "err_license": "❌ ¡Prueba gratuita (1 uso) agotada! A partir de la segunda producción, debe autorizar la Clave Maestra."
     },
     "Tiếng Việt 🇻🇳": {
         "title": "💎 Global AI Video Factory Enterprise",
@@ -210,7 +213,7 @@ LANG_PACK = {
         "paywall_btn": "💳 Sở Hữu Giấy Phép Thầy Ngay",
         "status_active": "✅ Enterprise Max Đang Chạy",
         "status_desc": "Mọi giới hạn đã được gỡ bỏ. Chế độ chiếm lĩnh lưu lượng truy cập toàn cầu đã sẵn sàng.",
-        "err_license": "❌ Khóa cấp phép không hợp lệ. Vui lòng xác thực Mã Master ở thanh bên trước."
+        "err_license": "❌ Lượt dùng thử miễn phí (1 lần) đã hết! Từ lần sản xuất thứ 2, bạn phải xác thực Mã Master ở thanh bên."
     }
 }
 
@@ -224,10 +227,10 @@ with st.sidebar:
     
     st.write("---")
     
-    # [핵심 페이월] 라이선스 인증 인터페이스
+    # 라이선스 인증 인터페이스
     license_input = st.text_input(L["license_label"], placeholder=L["license_ph"], type="password")
     
-    # 라이선스 키 조건 검증 (마스터 키 백엔드 락: EB74 유지)
+    # 라이선스 키 조건 검증 (마스터 키 백엔드 락)
     is_licensed = (license_input == "EB74")
     
     if is_licensed:
@@ -238,10 +241,15 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     else:
+        # 라이선스가 없고 무료 기회가 소진되었을 때 눈에 띄게 경고 문구 추가
+        paywall_msg = L["paywall_desc"]
+        if st.session_state.free_usage_count >= 1:
+            paywall_msg = "⚠️ [무료 체험 만료] 2번째 이용부터는 마스터 라이선스를 획득해야 전체 엔진 인프라를 잠금 해제할 수 있습니다."
+            
         st.markdown(f"""
         <div class="paywall-box">
             <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
-            <p style="font-size:12px; margin:0 0 12px 0; color:#aaa;">{L["paywall_desc"]}</p>
+            <p style="font-size:12px; margin:0 0 12px 0; color:#aaa;">{paywall_msg}</p>
             <a href="https://rainscape5.gumroad.com/l/ycgff" target="_blank" style="text-decoration:none;">
                 <button style="background-color:#ff4b4b; color:white; border:none; padding:8px 12px; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">
                     {L["paywall_btn"]}
@@ -258,11 +266,23 @@ st.title(L["title"])
 st.subheader(L["subtitle"])
 st.write("---")
 
-# 하이엔드 테마 지표 대시보드
+# 하이엔드 테마 지표 대시보드 (라이선스 등급란에 무료체험 상태 표시)
 mc1, mc2, mc3, mc4 = st.columns(4)
 with mc1: st.metric(label=L["m1"], value="⚡ Stable", delta="99.98% Latency")
 with mc2: st.metric(label=L["m2"], value=f"💾 {len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
-with mc3: st.metric(label=L["m3"], value="Enterprise Max" if is_licensed else "Locked 🔒", delta="Access Authorization")
+
+# 라이선스 상태 다이나믹 대시보드
+if is_licensed:
+    license_status_value = "Enterprise Max"
+    license_status_delta = "Full Access Granted"
+elif st.session_state.free_usage_count == 0:
+    license_status_value = "1 Free Credit Left"
+    license_status_delta = "Trial Active 🔓"
+else:
+    license_status_value = "Locked 🔒"
+    license_status_delta = "Trial Expired (Paywall)"
+
+with mc3: st.metric(label=L["m3"], value=license_status_value, delta=license_status_delta)
 with mc4: st.metric(label="Global Traffic Matrix", value="🌍 Active", delta="CDN Powered")
 st.write("---")
 
@@ -277,9 +297,10 @@ with col1:
         st.write("")
         generate_btn = st.button(L["btn_generate"], type="primary")
 
-# 7. 3단계 파이프라인 엔진 구동 및 OpenAI 실시간 오케스트레이션
+# 7. 1회 우회 / 2회 차단 하이브리드 페이월 엔진 제어 파트
 if generate_btn:
-    if not is_licensed:
+    # [핵심 로직 변경점] 라이선스가 없으면서 무료 횟수까지 1회 이상 사용한 경우 철저히 차단
+    if not is_licensed and st.session_state.free_usage_count >= 1:
         st.error(L["err_license"])
     elif not api_key_input:
         st.error("Please enter your OpenAI API Key in the sidebar.")
@@ -334,6 +355,9 @@ if generate_btn:
                 "script": result_json.get("script", "No script generated."),
                 "prompt": result_json.get("prompt", "Cinematic shot.")
             }
+            
+            # 성공적 제조 시 무료 카운터 차감 (누적 가산)
+            st.session_state.free_usage_count += 1
             
             st.session_state.workspace_history.insert(0, actual_result)
             st.session_state.selected_view_idx = 0
