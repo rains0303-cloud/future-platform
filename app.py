@@ -23,19 +23,32 @@ if "workspace_history" not in st.session_state:
 if "selected_view_idx" not in st.session_state:
     st.session_state.selected_view_idx = None
 
-# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입
+# 2. 하이엔드 글로벌 SaaS 테마 CSS 주입 (우측 상단 아이콘 및 하단 푸터 완전 제거 락)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    
+    /* 전체 기본 폰트 최적화 */
     html, body, [data-testid="stSidebarUserserviceAuth_container"] {
         font-family: 'Inter', 'Noto Sans KR', sans-serif;
     }
+    
+    /* [핵심 보안] 우측 상단 Streamlit 호스팅 관련 아이콘셋(Deploy, Manage, Menu) 전면 숨김 */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    div[data-testid="stDecoration"] {display: none;}
+    button[title="View source code"] {display: none;}
+    
+    /* 버튼 스타일링 */
     .stButton>button {
         width: 100%;
         border-radius: 8px;
         font-weight: 700;
         transition: all 0.3s ease;
     }
+    
+    /* 결제 유도 박스 디자인 */
     .paywall-box {
         background-color: #ff4b4b1a;
         border: 1px solid #ff4b4b;
@@ -53,7 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (버튼 문구 커스텀 적용)
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (바뀐 문구 유지)
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
@@ -121,7 +134,7 @@ LANG_PACK = {
         "feat_ph": "例：24時間保冷可能 / トレンディなデザインを好む20〜30代の会社員向け",
         "btn_generate": "🚀 独占ショート動画マーケティングキット一括製造開始",
         "paywall_title": "🚨 라이선스 무효화",
-        "paywall_desc": "月100万円収益自動化エンジンがロックされています。機能を解放するには、公式マスターライセンスを取得してください。",
+        "paywall_desc": "月100万円収益 automatic エンジンがロックされています。機能を解放するには、公式マスターライセンスを取得してください。",
         "paywall_btn": "💳 マスターライセンス即時獲得",
         "status_active": "✅ Enterprise Max 稼働中",
         "status_desc": "すべての制限が解除されました。無制限のグローバルトラフィック掌握モードが有効です。",
@@ -218,7 +231,6 @@ with st.sidebar:
     is_licensed = (license_input == "EB74")
     
     if is_licensed:
-        # 라이선스 활성화 상태 UI
         st.markdown(f"""
         <div class="success-box">
             <h4 style="color:#24b47e; margin:0 0 5px 0;">{L["status_active"]}</h4>
@@ -226,7 +238,6 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     else:
-        # 라이선스 제한 상태 UI (검로드 링크 완전 탑재 및 문구 변경 완료)
         st.markdown(f"""
         <div class="paywall-box">
             <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
