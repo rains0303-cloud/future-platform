@@ -53,16 +53,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (요청 반영: 페이월 버튼에서 EB74 제거)
+# 3. 전 세계 6대 권역 결제 페이월 포함 언어팩 (요청 반영: 입력창 가이드에서 EB74 제거)
 LANG_PACK = {
     "한국어 🇰🇷": {
         "title": "💎 글로벌 AI 숏폼 제조 공장 Enterprise",
         "subtitle": "상위 1% 독점적 글로벌 무인 숏폼 비디오 생성 오케스트레이터",
         "sidebar_title": "⚙️ 관제 센터 (Control)",
         "license_label": "🔑 마스터 라이선스 키 입력",
-        "license_ph": "EB74 키를 입력하세요...",
+        "license_ph": "라이선스 키를 입력하세요...",
         "lang_label": "🌐 시스템 UI 언어",
-        "m1": "⚡ GPT-4o-Mini 동기화",
+        "m1": "GPT-4o-Mini 동기화",
         "m2": "Encrypted 노드 스토리지",
         "m3": "라이선스 등급",
         "p_name_label": "📦 판매할 상품/서비스 이름",
@@ -75,16 +75,16 @@ LANG_PACK = {
         "paywall_btn": "💳 마스터 라이선스 즉시 획득하기",
         "status_active": "✅ Enterprise Max 가동 중",
         "status_desc": "모든 제한이 해제되었습니다. 무제한 글로벌 트래픽 장악 모드가 활성화 상태입니다.",
-        "err_license": "❌ 라이선스 키가 유효하지 않습니다. 사이드바에서 마스터 키(EB74)를 먼저 인증해주세요."
+        "err_license": "❌ 라이선스 키가 유효하지 않습니다. 사이드바에서 마스터 키를 먼저 인증해주세요."
     },
     "English 🇺🇸": {
         "title": "💎 Global AI Video Factory Enterprise",
         "subtitle": "Top 1% Exclusive Global Automated Short-form Video Orchestrator",
         "sidebar_title": "⚙️ Control Center",
         "license_label": "🔑 Master License Key",
-        "license_ph": "Enter EB74 Key...",
+        "license_ph": "Enter License Key...",
         "lang_label": "🌐 System UI Language",
-        "m1": "⚡ GPT-4o-Mini Sync",
+        "m1": "GPT-4o-Mini Sync",
         "m2": "Encrypted Node Storage",
         "m3": "License Tier",
         "p_name_label": "📦 Product/Service Name",
@@ -97,38 +97,38 @@ LANG_PACK = {
         "paywall_btn": "💳 Get Master License Instantly",
         "status_active": "✅ Enterprise Max Active",
         "status_desc": "All restrictions lifted. Global traffic domination mode is fully operational.",
-        "err_license": "❌ Invalid License Key. Please authorize the Master Key (EB74) in the sidebar first."
+        "err_license": "❌ Invalid License Key. Please authorize the Master Key in the sidebar first."
     },
     "日本語 🇯🇵": {
         "title": "💎 グローバル AI 숏폼 製造工場 Enterprise",
-        "subtitle": "上位 1% 独占的グローバル無人ショート動画生成オーケストレーター",
+        "subtitle": "上位 1% 独占的グローバル無人ショート動画生成オーケ스트レーター",
         "sidebar_title": "⚙️ 管制センター (Control)",
         "license_label": "🔑 マスターライセンスキー入力",
-        "license_ph": "EB74 キーを入力してください...",
+        "license_ph": "ライセンスキーを入力してください...",
         "lang_label": "🌐 시스템 UI 言語",
-        "m1": "⚡ GPT-4o-Mini 同期",
+        "m1": "GPT-4o-Mini 同期",
         "m2": "暗号化済みストレージ",
         "m3": "ライセンス階層",
         "p_name_label": "📦 商品・サービス名",
         "p_name_ph": "例：エコタンブラー、業務自動化SaaSなど",
         "feat_label": "🎯 商品の主な特徴とターゲット層",
         "feat_ph": "例：24時間保冷可能 / トレンディなデザインを好む20〜30代の会社員向け",
-        "btn_generate": "🚀 独占ショート動画マーケティングキット一括製造開始",
+        "btn_generate": "🚀 独占ショート動画マーケ팅キット一括製造開始",
         "paywall_title": "🚨 라이선스 무효화",
         "paywall_desc": "月100万円収益自動化エンジンがロックされています。機能を解放するには、公式マスターライセンスを取得してください。",
         "paywall_btn": "💳 マスターライセンスを即時取得する",
         "status_active": "✅ Enterprise Max 稼働中",
         "status_desc": "すべての制限が解除されました。無制限のグローバルトラフィック掌握モードが有効です。",
-        "err_license": "❌ 라이선스キーが無効です。まずサイドバーでマスターキー(EB74)を認証してください。"
+        "err_license": "❌ ライセンスキーが無効です Blender。まずサイドバーでマスターキーを認証してください。"
     },
     "简体中文 🇨🇳": {
         "title": "💎 全球 AI 短视频制造工厂 Enterprise",
         "subtitle": "前 1% 独占性全球无人值守短视频生成编排器",
         "sidebar_title": "⚙️ 控制中心",
         "license_label": "🔑 输入主授权码",
-        "license_ph": "请输入 EB74 授权码...",
+        "license_ph": "请输入授权码...",
         "lang_label": "🌐 系统 UI 语言",
-        "m1": "⚡ GPT-4o-Mini 同步",
+        "m1": "GPT-4o-Mini 同步",
         "m2": "加密节点存储",
         "m3": "授权级别",
         "p_name_label": "📦 产品/服务名称",
@@ -141,16 +141,16 @@ LANG_PACK = {
         "paywall_btn": "💳 立即获取主授权码",
         "status_active": "✅ Enterprise Max 正常运行",
         "status_desc": "限制已全额解除。全球流量霸屏模式已处于激活状态。",
-        "err_license": "❌ 授权码无效。请先在侧边栏中验证您的主授权码 (EB74)。"
+        "err_license": "❌ 授权码无效。请先在侧边栏中验证您的主授权码。"
     },
     "Español 🇪🇸": {
         "title": "💎 Global AI Video Factory Enterprise",
         "subtitle": "Orquestador Global Automático Exclusivo del Top 1% para Videos Cortos",
         "sidebar_title": "⚙️ Centro de Control",
         "license_label": "🔑 Clave de Licencia Maestra",
-        "license_ph": "Ingrese la clave EB74...",
+        "license_ph": "Ingrese la clave...",
         "lang_label": "🌐 Idioma del Sistema UI",
-        "m1": "⚡ Sincronización GPT-4o-Mini",
+        "m1": "Sincronización GPT-4o-Mini",
         "m2": "Almacenamiento Encriptado",
         "m3": "Nivel de Licencia",
         "p_name_label": "📦 Nombre del Producto/Servicio",
@@ -163,16 +163,16 @@ LANG_PACK = {
         "paywall_btn": "💳 Obtener Licencia Maestra Al Instante",
         "status_active": "✅ Enterprise Max Operando",
         "status_desc": "Todas las restricciones eliminadas. El modo de dominación de tráfico global está activo.",
-        "err_license": "❌ Clave de licencia inválida. Por favor, valide la Clave Maestra (EB74) en la barra lateral primero."
+        "err_license": "❌ Clave de licencia inválida. Por favor, valide la Clave Maestra en la barra lateral primero."
     },
     "Tiếng Việt 🇻🇳": {
         "title": "💎 Global AI Video Factory Enterprise",
         "subtitle": "Hệ Thống Tự Động Hóa Sản Xuất Video Ngắn Độc Quyền Top 1% Toàn Cầu",
         "sidebar_title": "⚙️ Trung Tâm Điều Khiển",
         "license_label": "🔑 Khóa Cấp Phép Master",
-        "license_ph": "Nhập mã khóa EB74...",
+        "license_ph": "Nhập mã khóa...",
         "lang_label": "🌐 Ngôn Ngữ Hệ Thống",
-        "m1": "⚡ Đồng Bộ GPT-4o-Mini",
+        "m1": "Đồng Bộ GPT-4o-Mini",
         "m2": "Lưu Trữ Mã Hóa Node",
         "m3": "Hạng Cấp Phép",
         "p_name_label": "📦 Tên Sản Phẩm/Dịch Vụ",
@@ -185,7 +185,7 @@ LANG_PACK = {
         "paywall_btn": "💳 Mua Khóa Bản Quyền Master Ngay",
         "status_active": "✅ Enterprise Max Đang Chạy",
         "status_desc": "Mọi giới hạn đã được gỡ bỏ. Chế độ chiếm lĩnh lưu lượng truy cập toàn cầu đã sẵn sàng.",
-        "err_license": "❌ Khóa cấp phép không hợp lệ. Vui lòng xác thực Mã Master (EB74) ở thanh bên trước."
+        "err_license": "❌ Khóa cấp phép không hợp lệ. Vui lòng xác thực Mã Master ở thanh bên trước."
     }
 }
 
@@ -199,7 +199,7 @@ with st.sidebar:
     
     st.write("---")
     
-    # [핵심 페이월] 라이선스 인증 인터페이스
+    # [핵심 페이월] 라이선스 인증 인터페이스 (요청 반영: placeholders에서 EB74 제거 완료)
     license_input = st.text_input(L["license_label"], placeholder=L["license_ph"], type="password")
     
     # 라이선스 키 조건 검증 (마스터 키: EB74)
@@ -214,7 +214,7 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     else:
-        # 라이선스 제한 상태 UI (파트너님의 실제 검로드 링크 탑재 / 요청 반영: 버튼명에서 EB74 제거)
+        # 라이선스 제한 상태 UI
         st.markdown(f"""
         <div class="paywall-box">
             <h4 style="color:#ff4b4b; margin:0 0 5px 0;">{L["paywall_title"]}</h4>
@@ -232,12 +232,12 @@ st.title(L["title"])
 st.subheader(L["subtitle"])
 st.write("---")
 
-# 하이엔드 테마 지표 대시보드
+# 하이엔드 테마 지표 대시보드 (요청 반영: 우측 상단 메트릭 내 이모지/아이콘 제거)
 mc1, mc2, mc3, mc4 = st.columns(4)
-with mc1: st.metric(label=L["m1"], value="⚡ Stable", delta="99.98% Latency")
-with mc2: st.metric(label=L["m2"], value=f"💾 {len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
-with mc3: st.metric(label=L["m3"], value="Enterprise Max" if is_licensed else "Locked 🔒", delta="Access Authorization")
-with mc4: st.metric(label="Global Traffic Matrix", value="🌍 Active", delta="CDN Powered")
+with mc1: st.metric(label=L["m1"], value="Stable", delta="99.98% Latency")
+with mc2: st.metric(label=L["m2"], value=f"{len(st.session_state.workspace_history)} Nodes", delta="Encrypted")
+with mc3: st.metric(label=L["m3"], value="Enterprise Max" if is_licensed else "Locked", delta="Access Authorization")
+with mc4: st.metric(label="Global Traffic Matrix", value="Active", delta="CDN Powered")
 st.write("---")
 
 # 6. 스플릿 구조 설계 (인풋 콘솔 & 아웃풋 모니터)
@@ -254,7 +254,6 @@ with col1:
 # 7. 3단계 파이프라인 엔진 구동 및 OpenAI 실시간 오케스트레이션
 if generate_btn:
     if not is_licensed:
-        # EB74 마스터 키가 없으면 실행 원천 차단
         st.error(L["err_license"])
     elif not product_name or not product_features:
         st.warning("Please fill out the form entirely.")
@@ -262,9 +261,6 @@ if generate_btn:
         indicator_box = st.empty()
         
         try:
-            # OpenAI 클라이언트 초기화 
-            # (사이드바 입력창이 삭제되었으므로 st.secrets["OPENAI_API_KEY"] 또는 환경변수에서 자동으로 로드하도록 설계)
-            # 배포 환경의 .streamlit/secrets.toml 파일에 api_key를 연동해 두시면 안전하게 작동합니다.
             client = OpenAI()
             
             with indicator_box.container():
@@ -273,7 +269,6 @@ if generate_btn:
                 
                 st.info("✍️ [Stage 2] Orchestrating OpenAI GPT-4o-Mini for High-Conversion Script...")
                 
-                # 시스템 프롬프트 구성 (상위 1% 성장 해커의 카피라이팅 로직 강제)
                 system_instruction = (
                     "You are the world's top 1% growth hacker and short-form video director. "
                     "Your goal is to create a viral, high-converting marketing kit for a product. "
@@ -287,7 +282,6 @@ if generate_btn:
                 
                 user_content = f"Product Name: {product_name}\nFeatures/Target: {product_features}"
                 
-                # OpenAI API 실시간 호출
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -304,7 +298,6 @@ if generate_btn:
                 time.sleep(0.5)
                 st.success("✨ Global Exclusive Short-form Marketing Kit Production Complete!")
             
-            # 워크스페이스 타임라인 히스토리에 실제 결과 노드 적재
             actual_result = {
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "product": product_name,
@@ -317,7 +310,7 @@ if generate_btn:
             st.session_state.workspace_history.insert(0, actual_result)
             st.session_state.selected_view_idx = 0
             indicator_box.empty()
-            st.rerun()  # 화면 즉시 갱신
+            st.rerun()
             
         except Exception as e:
             indicator_box.empty()
@@ -332,7 +325,6 @@ with col2:
             st.markdown(f"### 🖥️ Enterprise Workspace Monitor")
             st.caption(f"🧬 Generation Node Timestamp: {current_data['timestamp']}")
             
-            # 탭 구조를 통한 핵심 자산 시각화
             tab1, tab2, tab3 = st.tabs(["📌 High-Hook Script", "🎨 AI Video Render Prompt", "📊 Advanced Analytics"])
             
             with tab1:
